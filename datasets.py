@@ -49,6 +49,6 @@ class Datasets:
         return distance
 
     def get_permutation(self, name):
-        print(self.datasets[name].shape[0])
-        i = random.sample(range(1, self.datasets[name].shape[0]+1), self.datasets[name].shape[0])
-        return i
+        permutation = random.sample(range(1, self.datasets[name].shape[0]+1), self.datasets[name].shape[0])
+        permutation.append(permutation[0])
+        return permutation
