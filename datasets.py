@@ -38,14 +38,14 @@ class Datasets:
             # append metadata to dictionary
             self.datasets.update({dataset_name: dataset})
 
-    def distance_two_cities(self, dataset, city1, city2):
+    def _distance_two_cities(self, dataset, city1, city2):
         return np.sqrt(abs(self.datasets[dataset].loc[city1]['x']-self.datasets[dataset].loc[city2]['x'])**2 +
                        abs(self.datasets[dataset].loc[city1]['y']-self.datasets[dataset].loc[city2]['y'])**2)
 
     def distance_permutation(self, name, permutation):
         distance = 0
         for city1, city2 in zip(permutation[:-1], permutation[1:]):
-            distance += self.distance_two_cities(name, city1, city2)
+            distance += self._distance_two_cities(name, city1, city2)
         return distance
 
     def get_permutation(self, name):
