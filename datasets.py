@@ -52,3 +52,19 @@ class Datasets:
         permutation = random.sample(range(1, self.datasets[name].shape[0]+1), self.datasets[name].shape[0])
         permutation.append(permutation[0])
         return permutation
+
+
+# Example of usage
+
+# path = '/Users/michal/PycharmProjects/MRP/datasets/*.tsp'
+# data = Datasets(path)
+# name = 'berlin11_modified'
+
+# print(data.datasets[name].loc[4]['x'])
+# print(data._distance_two_cities(name, 1, 2))
+# print(data.distance_permutation(name, [1, 2, 3, 4]))
+
+# permutation = data.get_permutation(name)
+# print(permutation)
+# distance = data.distance_permutation(name, permutation)
+# print(distance)

@@ -1,9 +1,9 @@
-from datasets import Datasets
 import operator
 import pandas as pd
 import numpy as np
 import random
 from matplotlib import pyplot as plt
+from tqdm import tqdm
 
 
 class GeneticAlgorithm:
@@ -11,13 +11,13 @@ class GeneticAlgorithm:
         self.datasets = datasets
         self.name = name
 
-    def generate_population(self, population_length):
+    def _generate_population(self, population_length):
         population = []
         for i in range(0, population_length):
             population.append(self.datasets.get_permutation(self.name))
         return population
 
-    def rank_population(self, population):
+    def _rank_population(self, population):
         fitness_results = {}
         for i in range(0, len(population)):
             fitness_results[i] = self.datasets.distance_permutation(self.name, population[i])
@@ -26,7 +26,7 @@ class GeneticAlgorithm:
         return pd.DataFrame(ranked_population, columns=['index', 'fitness'])
 
     @staticmethod
-    def select_individuals(ranked_population, size_of_elite):
+    def _select_individuals(ranked_population, size_of_elite):
         selection_results = []
         df = ranked_population.copy()
         df['cum_sum'] = df.fitness.cumsum()
@@ -43,7 +43,7 @@ class GeneticAlgorithm:
         return selection_results
 
     @staticmethod
-    def crossing_over(parent1, parent2):
+    def _crossing_over(parent1, parent2):
         cutting_place_a = int(random.random() * len(parent1))
         cutting_place_b = int(random.random() * len(parent1))
 
@@ -60,7 +60,7 @@ class GeneticAlgorithm:
         return child
 
     @staticmethod
-    def mutation(individual, ratio):
+    def _mutation(individual, ratio):
         for gene_index in range(len(individual)):
             if random.random() < ratio:
                 swap_with = int(random.random() * len(individual))
@@ -70,7 +70,7 @@ class GeneticAlgorithm:
                 individual[swap_with] = gene1
         return individual
 
-    def breed_population(self, population, selection_results, size_of_elite):
+    def _breed_population(self, population, selection_results, size_of_elite):
         matingpool = []
         for i in range(0, len(selection_results)):
             index = selection_results[i]
@@ -85,39 +85,47 @@ class GeneticAlgorithm:
             children.append(matingpool[i])
 
         for i in range(0, length):
-            child = self.crossing_over(pool[i], pool[len(matingpool) - i - 1])
+            child = self._crossing_over(pool[i], pool[len(matingpool) - i - 1])
             children.append(child)
         return children
 
-    def mutate_population(self, population, ratio):
+    def _mutate_population(self, population, ratio, size_of_elite):
         mutated_population = []
-        for individual in range(0, len(population)):
-            mutated_population.append(self.mutation(population[individual], ratio))
+        for individual in range(0, size_of_elite):
+            mutated_population.append(population[individual])
+        for individual in range(size_of_elite, len(population)):
+            mutated_population.append(self._mutation(population[individual], ratio))
         return mutated_population
 
-    def __call__(self, population_size, elite_size, mutation_ratio, epochs):
+    def __call__(self, population_size, size_of_elite, mutation_ratio, epochs):
         #  Initialise lists to keep best results in each epoch
-        best_routes = []
+        best_distance = []
+        best_route = []
 
-        #  Initialise populations
-        population = self.generate_population(population_size)
-        best_routes.append(self.rank_population(population).iloc[0].fitness)
-        print("Initial distance: " + str(best_routes[0]))
+        #  Initialise population
+        population = self._generate_population(population_size)
 
-        for i in range(0, epochs):
-            popRanked = self.rank_population(population)
-            selected_routes = self.select_individuals(popRanked, elite_size)
-            children = self.breed_population(population, selected_routes, elite_size)
-            population = self.mutate_population(children, mutation_ratio)
+        #  Update stats lists
+        best_for_now = self._rank_population(population).iloc[0]
+        best_distance.append(best_for_now.fitness)
+        best_route.append(population[int(best_for_now['index'])])
 
-            best_routes.append(self.rank_population(population).iloc[0].fitness)
+        #  Main loop
+        for i in tqdm(range(0, epochs)):
+            ranked_population = self._rank_population(population)
+            individuals_to_couple = self._select_individuals(ranked_population, size_of_elite)
+            children = self._breed_population(population, individuals_to_couple, size_of_elite)
+            population = self._mutate_population(children, mutation_ratio, size_of_elite)
 
-        print("Final distance: " + str(best_routes[epochs]))
+            #  Update stats lists
+            best_for_now = self._rank_population(population).iloc[0]
+            best_distance.append(best_for_now.fitness)
+            best_route.append(population[int(best_for_now['index'])])
 
-        plt.plot(best_routes)
+        plt.plot(best_distance)
         plt.ylabel('Distance')
         plt.xlabel('Epoch')
         plt.show()
 
-        return population[int(self.rank_population(population).iloc[0]['index'])]
+        return dict(zip(best_distance, best_route))
 
