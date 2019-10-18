@@ -4,7 +4,7 @@ Program includes two classes:
 * datasets
 * genethic algorithm
 
-Datasets used in experiments are avaliable [https://wwwproxy.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/STSP.html][here].
+Datasets used in experiments are avaliable [here](https://wwwproxy.iwr.uni-heidelberg.de/groups/comopt/software/TSPLIB95/STSP.html).
 
 Usage of algorithm:
 
