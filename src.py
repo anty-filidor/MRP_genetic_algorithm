@@ -4,9 +4,9 @@ from genetic_algorithm import GeneticAlgorithm
 path = '/Users/michal/PycharmProjects/MRP/datasets/*.tsp'
 data = Datasets(path)
 
-name = 'ali535'
+# name = 'ali535'
 # name = 'berlin11_modified'
-# name = 'berlin52'
+name = 'berlin52'
 # name = 'fl417'
 # name = 'gr666'
 # name = 'kroA100'
@@ -15,7 +15,7 @@ name = 'ali535'
 # name = 'pr2392'
 
 GA = GeneticAlgorithm(data, name)
-stats = GA(population_size=5, size_of_elite=1, mutation_ratio=0.01, epochs=100)
+stats = GA(population_size=50, size_of_elite=5, mutation_ratio=0.01, epochs=50)
 
 for iterator, log in enumerate(stats.items()):
     print('EPOCH {}'.format(iterator))
