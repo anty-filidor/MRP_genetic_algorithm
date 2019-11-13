@@ -97,7 +97,7 @@ class GeneticAlgorithm:
             mutated_population.append(self._mutation(population[individual], ratio))
         return mutated_population
 
-    def __call__(self, population_size, size_of_elite, mutation_ratio, epochs):
+    def __call__(self, population_size, size_of_elite, mutation_ratio, epochs, plot_figure=True):
         #  Initialise lists to keep best results in each epoch
         best_distance = []
         best_route = []
@@ -122,10 +122,11 @@ class GeneticAlgorithm:
             best_distance.append(best_for_now.fitness)
             best_route.append(population[int(best_for_now['index'])])
 
-        plt.plot(best_distance)
-        plt.ylabel('Distance')
-        plt.xlabel('Epoch')
-        plt.show()
+        if plot_figure:
+            plt.plot(best_distance)
+            plt.ylabel('Distance')
+            plt.xlabel('Epoch')
+            plt.show()
 
         return dict(zip(best_distance, best_route))
 
